@@ -69,8 +69,8 @@ test('prints fixed yarn.lock', async () => {
         '--print',
         yarnLockFilePath,
     ]);
-    expect(stdout).not.toContain('lodash@>=1.0.0:');
-    expect(stdout).toContain('lodash@>=1.0.0, lodash@>=2.0.0:');
+    expect(stdout).not.toContain('"lodash@npm:>=1.0.0":');
+    expect(stdout).toContain('"lodash@npm:>=1.0.0, lodash@npm:>=2.0.0":');
     expect(stderr).toBe('');
 });
 
@@ -82,8 +82,8 @@ test('prints fixed yarn.lock when listing lodash package', async () => {
         'lodash',
         yarnLockFilePath,
     ]);
-    expect(stdout).not.toContain('lodash@>=1.0.0:');
-    expect(stdout).toContain('lodash@>=1.0.0, lodash@>=2.0.0:');
+    expect(stdout).not.toContain('"lodash@npm:>=1.0.0":');
+    expect(stdout).toContain('"lodash@npm:>=1.0.0, lodash@npm:>=2.0.0":');
     expect(stderr).toBe('');
 });
 
@@ -95,8 +95,8 @@ test('prints same yarn.lock when listing missing package', async () => {
         'foo',
         yarnLockFilePath,
     ]);
-    expect(stdout).toContain('lodash@>=1.0.0:');
-    expect(stdout).not.toContain('lodash@>=1.0.0, lodash@>=2.0.0:');
+    expect(stdout).toContain('"lodash@npm:>=1.0.0":');
+    expect(stdout).not.toContain('"lodash@npm:>=1.0.0, lodash@npm:>=2.0.0":');
     expect(stderr).toBe('');
 });
 
@@ -108,9 +108,9 @@ test('prints fixed yarn.lock when excluding lodash', async () => {
         'lodash',
         yarnLockFilePath,
     ]);
-    expect(stdout).toContain('lodash@>=1.0.0:');
-    expect(stdout).toContain('lodash@>=2.0.0:');
-    expect(stdout).not.toContain('lodash@>=1.0.0, lodash@>=2.0.0:');
+    expect(stdout).toContain('"lodash@npm:>=1.0.0":');
+    expect(stdout).toContain('"lodash@npm:>=2.0.0":');
+    expect(stdout).not.toContain('"lodash@npm:>=1.0.0, lodash@npm:>=2.0.0":');
     expect(stderr).toBe('');
 });
 
@@ -123,10 +123,10 @@ test('edits yarn.lock and replaces its content with the fixed version', async ()
         ]);
         const newFileContent = await readFile(yarnLockFilePath, 'utf8');
         expect(oldFileContent).not.toBe(newFileContent);
-        expect(oldFileContent).toContain('lodash@>=1.0.0:');
-        expect(oldFileContent).not.toContain('lodash@>=1.0.0, lodash@>=2.0.0:');
-        expect(newFileContent).not.toContain('lodash@>=1.0.0:');
-        expect(newFileContent).toContain('lodash@>=1.0.0, lodash@>=2.0.0:');
+        expect(oldFileContent).toContain('"lodash@npm:>=1.0.0":');
+        expect(oldFileContent).not.toContain('"lodash@npm:>=1.0.0, lodash@npm:>=2.0.0":');
+        expect(newFileContent).not.toContain('"lodash@npm:>=1.0.0":');
+        expect(newFileContent).toContain('"lodash@npm:>=1.0.0, lodash@npm:>=2.0.0":');
         expect(stdout).toBe('');
         expect(stderr).toBe('');
     } finally {
@@ -142,10 +142,10 @@ test('edits yarn.lock and replaces its content with the fixed version without sp
         });
         const newFileContent = await readFile(yarnLockFilePath, 'utf8');
         expect(oldFileContent).not.toBe(newFileContent);
-        expect(oldFileContent).toContain('lodash@>=1.0.0:');
-        expect(oldFileContent).not.toContain('lodash@>=1.0.0, lodash@>=2.0.0:');
-        expect(newFileContent).not.toContain('lodash@>=1.0.0:');
-        expect(newFileContent).toContain('lodash@>=1.0.0, lodash@>=2.0.0:');
+        expect(oldFileContent).toContain('"lodash@npm:>=1.0.0":');
+        expect(oldFileContent).not.toContain('"lodash@npm:>=1.0.0, lodash@npm:>=2.0.0":');
+        expect(newFileContent).not.toContain('"lodash@npm:>=1.0.0":');
+        expect(newFileContent).toContain('"lodash@npm:>=1.0.0, lodash@npm:>=2.0.0":');
         expect(stdout).toBe('');
         expect(stderr).toBe('');
     } finally {
@@ -177,8 +177,8 @@ test('uses fewer strategy', async () => {
         'fewer',
         yarnLockFilePath,
     ]);
-    expect(stdout).not.toContain('library@>=1.0.0:');
-    expect(stdout).toContain('library@>=1.0.0, library@>=1.1.0, library@^2.0.0:');
-    expect(stdout).toContain('resolved "https://example.net/library@^2.1.0"');
+    expect(stdout).not.toContain('"library@npm:>=1.0.0":');
+    expect(stdout).toContain('"library@npm:>=1.0.0, library@npm:>=1.1.0, library@npm:^2.0.0":');
+    expect(stdout).toContain('resolution: "library@npm:2.1.0"');
     expect(stderr).toBe('');
 });

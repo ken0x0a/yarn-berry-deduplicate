@@ -1,93 +1,124 @@
 const { fixDuplicates, listDuplicates } = require('../index.js');
-const lockfile = require('@yarnpkg/lockfile');
+const yarnParsers = require('@yarnpkg/parsers');
 const outdent = require('outdent');
 
 test('dedupes lockfile to max compatible version', () => {
     const yarn_lock = outdent`
-    library@^1.1.0:
-      version "1.2.0"
-      resolved "https://example.net/library@^1.1.0"
+    "library@npm:^1.1.0, library@npm:^1.2.0":
+      version: "1.2.0"
+      resolution: "library@npm:1.2.0"
+      linkType: hard
 
-    library@^1.2.0:
-      version "1.2.0"
-      resolved "https://example.net/library@^1.2.0"
-
-    library@^1.3.0:
-      version "1.3.0"
-      resolved "https://example.net/library@^1.3.0"
+    "library@npm:^1.3.0":
+      version: "1.3.0"
+      resolution: "library@npm:1.3.0"
+      linkType: hard
     `;
     const deduped = fixDuplicates(yarn_lock);
-    const json = lockfile.parse(deduped).object;
+    const json = yarnParsers.parseSyml(deduped);
 
-    expect(json['library@^1.1.0']['version']).toEqual('1.3.0');
-    expect(json['library@^1.2.0']['version']).toEqual('1.3.0');
-    expect(json['library@^1.3.0']['version']).toEqual('1.3.0');
+    expect(json['library@npm:^1.1.0, library@npm:^1.2.0, library@npm:^1.3.0']['version']).toEqual(
+        '1.3.0'
+    );
 
     const list = listDuplicates(yarn_lock);
 
-    expect(list).toContain('Package "library" wants ^1.2.0 and could get 1.3.0, but got 1.2.0');
-    expect(list).toContain('Package "library" wants ^1.1.0 and could get 1.3.0, but got 1.2.0');
+    expect(list).toContain(
+        'Package "library" wants ^1.1.0,^1.2.0 and could get 1.3.0, but got 1.2.0'
+    );
+});
+
+test('dedupes lockfile to max compatible version with ~', () => {
+    const yarn_lock = outdent`
+  "library@npm:~1.1.0":
+    version: "1.1.0"
+    resolution: "library@npm:1.1.0"
+    linkType: hard
+
+  "library@npm:^1.1.1":
+    version: "1.1.1"
+    resolution: "library@npm:1.1.1"
+    linkType: hard
+
+  "library@npm:^1.3.0":
+    version: "1.3.0"
+    resolution: "library@npm:1.3.0"
+    linkType: hard
+  `;
+    const deduped = fixDuplicates(yarn_lock);
+    const json = yarnParsers.parseSyml(deduped);
+
+    expect(Object.keys(json).length).toBe(2);
+    expect(json['library@npm:~1.1.0']['version']).toEqual('1.1.1');
+    expect(json['library@npm:^1.1.1, library@npm:^1.3.0']['version']).toEqual('1.3.0');
+
+    const list = listDuplicates(yarn_lock);
+
+    expect(list).toContain('Package "library" wants ~1.1.0 and could get 1.1.1, but got 1.1.0');
+    expect(list).toContain('Package "library" wants ^1.1.1 and could get 1.3.0, but got 1.1.1');
 });
 
 test('dedupes lockfile to most common compatible version', () => {
     const yarn_lock = outdent`
-    library@>=1.0.0:
-      version "3.0.0"
-      resolved "https://example.net/library@^3.0.0"
+    "library@npm:>=1.0.0, library@npm:>=1.1.0":
+      version: "3.0.0"
+      resolution: "library@npm:3.0.0"
+      linkType: hard
 
-    library@>=1.1.0:
-      version "3.0.0"
-      resolved "https://example.net/library@^3.0.0"
-
-    library@^2.0.0:
-      version "2.1.0"
-      resolved "https://example.net/library@^2.1.0"
+    "library@npm:^2.0.0":
+      version: "2.1.0"
+      resolution: "library@npm:2.1.0"
+      linkType: hard
   `;
     const deduped = fixDuplicates(yarn_lock, {
         useMostCommon: true,
     });
-    const json = lockfile.parse(deduped).object;
+    const json = yarnParsers.parseSyml(deduped);
 
-    expect(json['library@>=1.0.0']['version']).toEqual('2.1.0');
-    expect(json['library@>=1.1.0']['version']).toEqual('2.1.0');
-    expect(json['library@^2.0.0']['version']).toEqual('2.1.0');
+    expect(json['library@npm:>=1.0.0, library@npm:>=1.1.0, library@npm:^2.0.0']['version']).toEqual(
+        '2.1.0'
+    );
 
     const list = listDuplicates(yarn_lock, {
         useMostCommon: true,
     });
 
-    expect(list).toContain('Package "library" wants >=1.0.0 and could get 2.1.0, but got 3.0.0');
-    expect(list).toContain('Package "library" wants >=1.1.0 and could get 2.1.0, but got 3.0.0');
+    expect(list).toContain(
+        'Package "library" wants >=1.0.0,>=1.1.0 and could get 2.1.0, but got 3.0.0'
+    );
 });
 
 test('limits the packages to be de-duplicated', () => {
     const yarn_lock = outdent`
-    a-package@^2.0.0:
-      version "2.0.0"
-      resolved "http://example.com/a-package/2.1.0"
+    "a-package@npm:^2.0.0":
+      version: "2.0.0"
+      resolution: "a-package@npm:2.0.0"
+      linkType: hard
 
-    a-package@^2.0.1:
-      version "2.0.1"
-      resolved "http://example.com/a-package/2.2.0"
+    "a-package@npm:^2.0.1":
+      version: "2.0.1"
+      resolution: "a-package@npm:2.0.1"
+      linkType: hard
 
-    other-package@^1.0.0:
-      version "1.0.11"
-      resolved "http://example.com/other-package/1.0.0"
+    "other-package@npm:^1.0.0":
+      version: "1.0.11"
+      resolution: "other-package@npm:1.0.11"
+      linkType: hard
 
-    other-package@^1.0.1:
-      version "1.0.12"
-      resolved "http://example.com/other-package/1.0.0"
+    "other-package@npm:^1.0.1":
+      version: "1.0.12"
+      resolution: "other-package@npm:1.0.12"
+      linkType: hard
   `;
 
     const deduped = fixDuplicates(yarn_lock, {
         includePackages: ['other-package'],
     });
-    const json = lockfile.parse(deduped).object;
+    const json = yarnParsers.parseSyml(deduped);
 
-    expect(json['a-package@^2.0.0']['version']).toEqual('2.0.0');
-    expect(json['a-package@^2.0.1']['version']).toEqual('2.0.1');
-    expect(json['other-package@^1.0.0']['version']).toEqual('1.0.12');
-    expect(json['other-package@^1.0.1']['version']).toEqual('1.0.12');
+    expect(json['a-package@npm:^2.0.0']['version']).toEqual('2.0.0');
+    expect(json['a-package@npm:^2.0.1']['version']).toEqual('2.0.1');
+    expect(json['other-package@npm:^1.0.0, other-package@npm:^1.0.1']['version']).toEqual('1.0.12');
 
     const list = listDuplicates(yarn_lock, {
         includePackages: ['other-package'],
@@ -101,32 +132,35 @@ test('limits the packages to be de-duplicated', () => {
 
 test('excludes packages to be de-duplicated', () => {
     const yarn_lock = outdent`
-    a-package@^2.0.0:
-      version "2.0.0"
-      resolved "http://example.com/a-package/2.1.0"
+    "a-package@npm:^2.0.0":
+      version: "2.0.0"
+      resolution: "a-package@npm:2.1.0"
+      linkType: hard
 
-    a-package@^2.0.1:
-      version "2.0.1"
-      resolved "http://example.com/a-package/2.2.0"
+    "a-package@npm:^2.0.1":
+      version: "2.0.1"
+      resolution: "a-package@npm:2.2.0"
+      linkType: hard
 
-    other-package@^1.0.0:
-      version "1.0.11"
-      resolved "http://example.com/other-package/1.0.0"
+    "other-package@npm:^1.0.0":
+      version: "1.0.11"
+      resolution: "other-package@npm:1.0.11"
+      linkType: hard
 
-    other-package@^1.0.1:
-      version "1.0.12"
-      resolved "http://example.com/other-package/1.0.0"
+    "other-package@npm:^1.0.1":
+      version: "1.0.12"
+      resolution: "other-package@npm:1.0.12"
+      linkType: hard
   `;
 
     const deduped = fixDuplicates(yarn_lock, {
         excludePackages: ['a-package'],
     });
-    const json = lockfile.parse(deduped).object;
+    const json = yarnParsers.parseSyml(deduped);
 
-    expect(json['a-package@^2.0.0']['version']).toEqual('2.0.0');
-    expect(json['a-package@^2.0.1']['version']).toEqual('2.0.1');
-    expect(json['other-package@^1.0.0']['version']).toEqual('1.0.12');
-    expect(json['other-package@^1.0.1']['version']).toEqual('1.0.12');
+    expect(json['a-package@npm:^2.0.0']['version']).toEqual('2.0.0');
+    expect(json['a-package@npm:^2.0.1']['version']).toEqual('2.0.1');
+    expect(json['other-package@npm:^1.0.0, other-package@npm:^1.0.1']['version']).toEqual('1.0.12');
 
     const list = listDuplicates(yarn_lock, {
         excludePackages: ['a-package'],
@@ -140,21 +174,22 @@ test('excludes packages to be de-duplicated', () => {
 
 test('should support the integrity field if present', () => {
     const yarn_lock = outdent({ trimTrailingNewline: false })`
-    # THIS IS AN AUTOGENERATED FILE. DO NOT EDIT THIS FILE DIRECTLY.
-    # yarn lockfile v1
+    __metadata:
+      version: 4
 
-
-    a-package@^2.0.0:
-      version "2.0.1"
-      resolved "http://example.com/a-package/2.0.1"
-      integrity sha512-ptqFDzemkXGMf7ylch/bCV+XTDvVjD9dRymzcjOPIxg8Hqt/uesOye10GXItFbsxJx9VZeJBYrR8FFTauu+hHg==
+    "a-package@npm:^2.0.0":
+      version: 2.0.1
+      resolution: "library@npm:2.0.1"
       dependencies:
-        a-second-package "^2.0.0"
+        a-second-package: ^2.0.0
+      integrity: sha512-ptqFDzemkXGMf7ylch/bCV+XTDvVjD9dRymzcjOPIxg8Hqt/uesOye10GXItFbsxJx9VZeJBYrR8FFTauu+hHg==
+      linkType: hard
 
-    a-second-package@^2.0.0:
-      version "2.0.1"
-      resolved "http://example.com/a-second-package/2.0.1"
-      integrity sha512-ptqFDzemkXGMf7ylch/bCV+XTDvVjD9dRymzcjOPIxg8Hqt/uesOye10GXItFbsxJx9VZeJBYrR8FFTauu+hHg==
+    "a-second-package@npm:^2.0.0":
+      version: 2.0.1
+      resolution: "a-second-package@npm:2.0.1"
+      integrity: sha512-ptqFDzemkXGMf7ylch/bCV+XTDvVjD9dRymzcjOPIxg8Hqt/uesOye10GXItFbsxJx9VZeJBYrR8FFTauu+hHg==
+      linkType: hard
   `;
 
     const deduped = fixDuplicates(yarn_lock);

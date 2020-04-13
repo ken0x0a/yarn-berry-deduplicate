@@ -1,52 +1,53 @@
 {
-  "name": "yarn-deduplicate",
-  "version": "2.0.0",
-  "bin": "./cli.js",
-  "description": "Deduplication tool for yarn.lock files",
-  "keywords": [
-    "yarn",
-    "yarn.lock",
-    "lockfile",
-    "duplicated",
-    "package manager",
-    "dedupe",
-    "deduplicate"
-  ],
-  "scripts": {
-    "test": "eslint . && jest",
-    "lint": "eslint ."
-  },
-  "homepage": "https://github.com/atlassian/yarn-deduplicate#readme",
-  "bugs": "https://github.com/atlassian/yarn-deduplicate/issues",
-  "license": "Apache-2.0",
-  "author": "Sergio Cinos <scinos@atlassian.com>",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:atlassian/yarn-deduplicate.git"
-  },
-  "engines": {
-    "node": ">=10",
-    "yarn": "^1.0.0"
-  },
-  "dependencies": {
-    "@yarnpkg/lockfile": "^1.1.0",
-    "commander": "^4.1.1",
-    "semver": "7.1.3"
-  },
-  "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.0",
-    "eslint-plugin-jest": "^23.8.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "jest": "^25.1.0",
-    "outdent": "0.7.0",
-    "prettier": "^1.15.3"
-  },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "<rootDir>/node_modules",
-      "<rootDir>/.history"
-    ]
-  }
+    "name": "yarn-berry-deduplicate",
+    "version": "2.0.0",
+    "bin": "./cli.js",
+    "description": "Fork of yarn-deduplicate for yarn berry",
+    "keywords": [
+        "yarn",
+        "yarn.lock",
+        "lockfile",
+        "duplicated",
+        "package manager",
+        "dedupe",
+        "deduplicate"
+    ],
+    "scripts": {
+        "test": "eslint . && jest",
+        "lint": "eslint ."
+    },
+    "homepage": "https://github.com/christophehurpeau/yarn-deduplicate#readme",
+    "bugs": "https://github.com/christophehurpeau/yarn-deduplicate/issues",
+    "license": "Apache-2.0",
+    "author": "Sergio Cinos <scinos@atlassian.com>",
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:christophehurpeau/yarn-deduplicate.git"
+    },
+    "engines": {
+        "node": ">=10",
+        "yarn": "^1.0.0"
+    },
+    "dependencies": {
+        "@yarnpkg/parsers": "^2.0.0-rc.10",
+        "commander": "^4.1.1",
+        "semver": "7.1.3"
+    },
+    "devDependencies": {
+        "eslint": "^6.8.0",
+        "eslint-config-prettier": "^6.10.0",
+        "eslint-plugin-jest": "^23.8.0",
+        "eslint-plugin-prettier": "^3.0.0",
+        "jest": "^25.1.0",
+        "outdent": "0.7.0",
+        "prettier": "^1.15.3"
+    },
+    "jest": {
+        "testPathIgnorePatterns": [
+            "<rootDir>/node_modules",
+            "<rootDir>/.history",
+            "<rootDir>/.vscode"
+        ]
+    }
 }
