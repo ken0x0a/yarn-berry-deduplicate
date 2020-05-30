@@ -1,4 +1,5 @@
-// const lockfile = require('@yarnpkg/lockfile');
+// @ts-check
+
 const yarnParsers = require('@yarnpkg/parsers');
 const semver = require('semver');
 
