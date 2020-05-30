@@ -16,32 +16,32 @@
         "test": "eslint . && jest",
         "lint": "eslint ."
     },
-    "homepage": "https://github.com/christophehurpeau/yarn-deduplicate#readme",
-    "bugs": "https://github.com/christophehurpeau/yarn-deduplicate/issues",
+    "homepage": "https://github.com/ken0x0a/yarn-berry-deduplicate#readme",
+    "bugs": "https://github.com/ken0x0a/yarn-berry-deduplicate/issues",
     "license": "Apache-2.0",
     "author": "Sergio Cinos <scinos@atlassian.com>",
     "main": "index.js",
     "repository": {
         "type": "git",
-        "url": "git@github.com:christophehurpeau/yarn-deduplicate.git"
+        "url": "git@github.com:ken0x0a/yarn-berry-deduplicate.git"
     },
     "engines": {
         "node": ">=10",
         "yarn": "^1.0.0"
     },
     "dependencies": {
-        "@yarnpkg/parsers": "^2.0.0-rc.10",
+        "@yarnpkg/parsers": "^2.0.0-rc.11",
         "commander": "^4.1.1",
-        "semver": "7.1.3"
+        "semver": "7.3.2"
     },
     "devDependencies": {
-        "eslint": "^6.8.0",
-        "eslint-config-prettier": "^6.10.0",
-        "eslint-plugin-jest": "^23.8.0",
-        "eslint-plugin-prettier": "^3.0.0",
+        "eslint": "^7.1.0",
+        "eslint-config-prettier": "^6.11.0",
+        "eslint-plugin-jest": "^23.13.2",
+        "eslint-plugin-prettier": "^3.1.3",
         "jest": "^25.1.0",
-        "outdent": "0.7.0",
-        "prettier": "^1.15.3"
+        "outdent": "0.7.1",
+        "prettier": "^2.0.5"
     },
     "jest": {
         "testPathIgnorePatterns": [
